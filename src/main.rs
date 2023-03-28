@@ -28,7 +28,7 @@ fn main() {
         handles.push(create_new_converting_thread(gold.clone(), wood.clone(),stone.clone(), SUBSTRACT));
     }
     for handle in handles {
-        handle.join();
+        handle.join().expect("Error en handle al realizar el join");
     }
 }
 
@@ -45,7 +45,7 @@ fn modify_resource(resource:Arc<Mutex<i32>>, modifier: i32) {
     let mut rng = thread_rng();
     loop {
         {
-            let mut resource_guard = resource.lock().unwrap();
+            let mut resource_guard = resource.lock().expect("Error tomando lock en thread");
             if *resource_guard <= 0 && modifier == SUBSTRACT {
                 break;
             }
@@ -63,13 +63,13 @@ fn convert_resource(gold:Arc<Mutex<i32>>, wood:Arc<Mutex<i32>>, stone:Arc<Mutex<
     let mut rng = thread_rng();
     loop {
         {
-            let mut gold_guard = gold.lock().unwrap();
+            let mut gold_guard = gold.lock().expect("Error tomando lock en thread");
             if *gold_guard <= 0 && direction==ADD {
                 break;
             }
             let gold_converted: i32 = rng.gen_range(0..=min(*gold_guard,MAX_RANGE));
-            let mut wood_guard = wood.lock().unwrap();
-            let mut stone_guard = stone.lock().unwrap();
+            let mut wood_guard = wood.lock().expect("Error tomando lock en thread");
+            let mut stone_guard = stone.lock().expect("Error tomando lock en thread");
             if (*wood_guard < *gold_guard*WOOD_TO_GOLD  || *stone_guard < *gold_guard*STONE_TO_GOLD) && direction==SUBSTRACT {
                 break;
             }
